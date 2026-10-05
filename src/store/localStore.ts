@@ -18,7 +18,7 @@ function createLocalStore<T extends { id: string }>(key: string): Store<T> {
     }
   }
   return {
-    hasData: () => read() !== null,
+    hasData: async () => read() !== null,
     async list() {
       return read() ?? []
     },

@@ -20,6 +20,8 @@ export interface Store<T extends { id: string } = LibNode> {
   list(): Promise<T[]>
   upsert(item: T): Promise<void>
   remove(ids: string[]): Promise<void>
-  /** 本機是否已經有資料（用來判斷要不要放範例）。 */
-  hasData(): boolean
+  /** 是否已經有資料（用來判斷要不要放範例）。 */
+  hasData(): Promise<boolean>
+  /** 有提供時，資料變動（包含其他裝置的變動）會即時通知。 */
+  subscribe?(onData: (items: T[]) => void): () => void
 }

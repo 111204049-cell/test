@@ -39,6 +39,14 @@ npm run build    # 型別檢查 + 打包
    npx firebase-tools login
    npx firebase-tools use --add     # 選你的專案，別名輸入 default
    ```
-3. 之後每次更新：`npm run deploy`
+3. 之後每次更新：`npm run deploy`（會一起部署網站和 `firestore.rules` 安全規則）
 
 部署完成會顯示 `https://<專案名>.web.app` 網址，手機開啟後即可安裝。
+
+## 登入與雲端同步
+
+- Google 登入（Firebase Authentication），資料存在 Firestore 的 `users/{uid}/nodes` 與 `users/{uid}/cards`
+- `firestore.rules` 只允許本人讀寫自己的資料
+- 有本機快取，沒網路時也能使用，恢復連線後自動同步
+- 也可以選「先不登入」，資料只存在該裝置的瀏覽器
+- Firebase 設定在 `src/firebase.ts`（都是公開識別碼，不是密碼）

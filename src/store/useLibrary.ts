@@ -1,30 +1,42 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { localStore } from './localStore'
 import { seedNodes } from './seed'
+import { reportSyncError } from './syncStatus'
 import type { LibNode, NodeType, Store } from './types'
 
-const store: Store = localStore
 const newId = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4)
 
-export function useLibrary() {
+export function useLibrary(store: Store) {
   const [nodes, setNodes] = useState<LibNode[]>([])
   const [ready, setReady] = useState(false)
   const timers = useRef(new Map<string, number>())
 
   useEffect(() => {
     let alive = true
+    let unsub: (() => void) | undefined
     ;(async () => {
-      if (!store.hasData()) for (const n of seedNodes()) await store.upsert(n)
-      const all = await store.list()
-      if (alive) {
-        setNodes(all)
+      try {
+        if (!(await store.hasData())) for (const n of seedNodes()) await store.upsert(n)
+      } catch (e) {
+        reportSyncError(e)
+      }
+      if (!alive) return
+      if (store.subscribe) {
+        unsub = store.subscribe((items) => {
+          if (!alive) return
+          // 正在輸入、還沒存出去的那幾筆，以本機版本為準，避免被舊資料蓋掉。
+          setNodes((prev) => items.map((n) => (timers.current.has(n.id) ? prev.find((p) => p.id === n.id) ?? n : n)))
+          setReady(true)
+        })
+      } else {
+        setNodes(await store.list())
         setReady(true)
       }
     })()
     return () => {
       alive = false
+      unsub?.()
     }
-  }, [])
+  }, [store])
 
   const childrenOf = useCallback(
     (parentId: string | null) => nodes.filter((n) => n.parentId === parentId).sort((a, b) => a.order - b.order),

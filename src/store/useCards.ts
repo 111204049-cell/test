@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Grade } from 'ts-fsrs'
-import { localCardStore } from './localStore'
+import { reportSyncError } from './syncStatus'
 import { newCard, rate, seedCards, type StudyCard } from './cards'
+import type { Store } from './types'
 
-const store = localCardStore
 const newId = () => 'c' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4)
 
-export function useCards() {
+export function useCards(store: Store<StudyCard>) {
   const [cards, setCards] = useState<StudyCard[]>([])
   const [ready, setReady] = useState(false)
   const ref = useRef<StudyCard[]>([])
@@ -14,18 +14,30 @@ export function useCards() {
 
   useEffect(() => {
     let alive = true
+    let unsub: (() => void) | undefined
     ;(async () => {
-      if (!store.hasData()) for (const c of seedCards()) await store.upsert(c)
-      const all = await store.list()
-      if (alive) {
-        setCards(all)
+      try {
+        if (!(await store.hasData())) for (const c of seedCards()) await store.upsert(c)
+      } catch (e) {
+        reportSyncError(e)
+      }
+      if (!alive) return
+      if (store.subscribe) {
+        unsub = store.subscribe((items) => {
+          if (!alive) return
+          setCards(items)
+          setReady(true)
+        })
+      } else {
+        setCards(await store.list())
         setReady(true)
       }
     })()
     return () => {
       alive = false
+      unsub?.()
     }
-  }, [])
+  }, [store])
 
   const add = useCallback((front: string, back: string, folderId: string | null) => {
     const c = newCard(newId(), front, back, folderId)

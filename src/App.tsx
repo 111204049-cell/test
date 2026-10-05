@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useLibrary } from './store/useLibrary'
 import { useCards } from './store/useCards'
 import CardsPage from './components/CardsPage'
@@ -8,10 +8,25 @@ import NoteEditor from './components/NoteEditor'
 import FolderView from './components/FolderView'
 import Home from './components/Home'
 import Icon from './components/Icon'
+import { clearSyncError, onSyncError } from './store/syncStatus'
+import type { LibNode, Store } from './store/types'
+import type { StudyCard } from './store/cards'
 
-export default function App() {
-  const lib = useLibrary()
-  const deck = useCards()
+export type Account =
+  | { mode: 'cloud'; name: string; email: string; onSignOut: () => void }
+  | { mode: 'local'; onSignIn: () => void }
+
+interface Props {
+  nodeStore: Store<LibNode>
+  cardStore: Store<StudyCard>
+  account: Account
+}
+
+export default function App({ nodeStore, cardStore, account }: Props) {
+  const lib = useLibrary(nodeStore)
+  const deck = useCards(cardStore)
+  const [syncError, setSyncError] = useState<string | null>(null)
+  useEffect(() => onSyncError(setSyncError), [])
   const [view, setView] = useState<'tree' | 'cards' | 'review'>('tree')
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [renamingId, setRenamingId] = useState<string | null>(null)
@@ -93,9 +108,40 @@ export default function App() {
             setDrawer(false)
           }}
         />
+        <div className="account">
+          {account.mode === 'cloud' ? (
+            <>
+              <div className="who">
+                <strong>{account.name || '已登入'}</strong>
+                <span>{account.email}</span>
+              </div>
+              <button className="btn small" onClick={account.onSignOut}>
+                登出
+              </button>
+            </>
+          ) : (
+            <>
+              <div className="who">
+                <strong>只存在這台裝置</strong>
+                <span>登入後可在手機與電腦同步</span>
+              </div>
+              <button className="btn small primary" onClick={account.onSignIn}>
+                登入
+              </button>
+            </>
+          )}
+        </div>
       </aside>
 
       <main className="main">
+        {syncError && (
+          <div className="banner" role="status">
+            <span>{syncError}</span>
+            <button className="icon-btn" aria-label="關閉提示" onClick={clearSyncError}>
+              <Icon name="close" size={16} />
+            </button>
+          </div>
+        )}
         {view === 'tree' && path.length > 0 && (
           <div className="crumbs" aria-label="目前位置">
             <button onClick={() => select(null)}>首頁</button>
