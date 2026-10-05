@@ -32,6 +32,7 @@ export default function App() {
     })
 
   const dueCount = deck.cards.filter((c) => c.due <= Date.now()).length
+  const existingFronts = new Set(deck.cards.map((c) => c.front.toLowerCase()))
   const folders = lib.nodes.filter((n) => n.type === 'folder')
 
   const select = (id: string | null) => {
@@ -131,8 +132,32 @@ export default function App() {
             onCreate={(type) => create(selected.id, type)}
           />
         )}
-        {view === 'tree' && selected?.type === 'note' && <NoteEditor key={selected.id} note={selected} onChange={(c) => lib.patch(selected.id, c)} />}
+        {view === 'tree' && selected?.type === 'note' && (
+          <NoteEditor
+            key={selected.id}
+            note={selected}
+            onChange={(c) => lib.patch(selected.id, c)}
+            existingFronts={existingFronts}
+            onAddCard={(front, back) => deck.add(front, back, selected.parentId)}
+          />
+        )}
       </main>
+
+      <nav className="tabbar glass-strong" aria-label="主要導覽">
+        <button className={view === 'tree' && !drawer ? 'on' : ''} onClick={() => select(null)}>
+          <Icon name="home" /> <span>首頁</span>
+        </button>
+        <button className={drawer ? 'on' : ''} onClick={() => setDrawer(true)}>
+          <Icon name="folder" /> <span>科目</span>
+        </button>
+        <button className={view === 'cards' ? 'on' : ''} onClick={() => setView('cards')}>
+          <Icon name="cards" /> <span>單字卡</span>
+        </button>
+        <button className={view === 'review' ? 'on' : ''} onClick={() => setView('review')}>
+          <Icon name="bolt" /> <span>複習</span>
+          {dueCount > 0 && <i className="tab-badge">{dueCount}</i>}
+        </button>
+      </nav>
     </div>
   )
 }
