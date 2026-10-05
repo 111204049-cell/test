@@ -29,6 +29,8 @@ export default defineConfig({
       },
       workbox: {
         navigateFallback: 'index.html',
+        // Firebase 登入用的 /__/auth/ 等保留路徑不能被 App 的離線快取攔截，否則登入視窗會是空白。
+        navigateFallbackDenylist: [/^\/__\//],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/,
