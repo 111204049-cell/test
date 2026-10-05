@@ -13,13 +13,23 @@ interface Props {
   setRenamingId: (id: string | null) => void
   expanded: Set<string>
   toggle: (id: string) => void
+  view: 'tree' | 'cards' | 'review'
+  dueCount: number
+  onView: (v: 'cards' | 'review') => void
 }
 
 export default function Sidebar(p: Props) {
   return (
     <nav className="sidebar" aria-label="科目樹">
-      <button className={'side-home' + (p.selectedId === null ? ' on' : '')} onClick={() => p.onSelect(null)}>
+      <button className={'side-home' + (p.view === 'tree' && p.selectedId === null ? ' on' : '')} onClick={() => p.onSelect(null)}>
         <Icon name="home" /> 首頁
+      </button>
+      <button className={'side-home' + (p.view === 'cards' ? ' on' : '')} onClick={() => p.onView('cards')}>
+        <Icon name="cards" /> 單字卡
+      </button>
+      <button className={'side-home' + (p.view === 'review' ? ' on' : '')} onClick={() => p.onView('review')}>
+        <Icon name="bolt" /> 複習
+        {p.dueCount > 0 && <span className="badge">{p.dueCount}</span>}
       </button>
       <div className="side-head">
         <span>科目</span>
@@ -43,7 +53,7 @@ function Item({ node, depth, ...p }: Props & { node: LibNode; depth: number }) {
   return (
     <li>
       <div
-        className={'row' + (p.selectedId === node.id ? ' on' : '')}
+        className={'row' + (p.view === 'tree' && p.selectedId === node.id ? ' on' : '')}
         style={{ paddingLeft: 8 + depth * 14 }}
         onClick={() => {
           p.onSelect(node.id)

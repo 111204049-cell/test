@@ -16,8 +16,10 @@ export interface LibNode {
  * 儲存層介面。現在用瀏覽器本機儲存，之後接 Firestore 時
  * 只要換一個實作，介面不用動。
  */
-export interface Store {
-  list(): Promise<LibNode[]>
-  upsert(node: LibNode): Promise<void>
+export interface Store<T extends { id: string } = LibNode> {
+  list(): Promise<T[]>
+  upsert(item: T): Promise<void>
   remove(ids: string[]): Promise<void>
+  /** 本機是否已經有資料（用來判斷要不要放範例）。 */
+  hasData(): boolean
 }

@@ -7,6 +7,8 @@ const PATHS: Record<string, string> = {
   menu: 'M4 7h16M4 12h16M4 17h16',
   edit: 'M4 20h4L19 9l-4-4L4 16zM13 7l4 4',
   home: 'M4 11l8-7 8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z',
+  cards: 'M7 4h10a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2zM9 20h6M12 17v3',
+  bolt: 'M13 3L5 13h6l-1 8 8-10h-6z',
   close: 'M6 6l12 12M18 6L6 18',
 }
 

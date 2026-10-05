@@ -157,3 +157,44 @@ button { font: inherit; color: inherit; cursor: pointer; }
   .editor { min-height: 70vh; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+
+/* cards & review */
+.badge { margin-left: auto; min-width: 22px; text-align: center; padding: 0 7px; border-radius: 99px; background: var(--accent); color: var(--accent-fg); font-size: 12px; font-weight: 700; line-height: 22px; }
+.btn:disabled { opacity: 0.5; cursor: default; }
+.add-form { display: flex; flex-direction: column; gap: 14px; padding: 20px 22px; border-radius: 20px; max-width: 560px; margin-bottom: 36px; align-items: flex-start; }
+.add-form h2 { margin: 0; font-family: var(--font-display); font-size: 20px; }
+.add-form label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); width: 100%; }
+.add-form input, .add-form textarea, .add-form select { font: inherit; font-size: 16px; color: var(--fg); background: var(--glass-strong); border: 1px solid var(--line); border-radius: 12px; padding: 9px 12px; width: 100%; }
+.add-form textarea { resize: vertical; }
+.card-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.card-row { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 16px; }
+.card-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.card-text strong { font-size: 17px; overflow-wrap: anywhere; }
+.card-text span { color: var(--muted); overflow-wrap: anywhere; }
+.card-text small { color: var(--muted); font-size: 12px; margin-top: 2px; }
+.page.center { text-align: left; }
+
+.review { max-width: 640px; margin: 0 auto; padding: 22px 0 40px; display: flex; flex-direction: column; gap: 16px; }
+.review-top { display: flex; justify-content: space-between; align-items: center; }
+.review-count { color: var(--muted); font-variant-numeric: tabular-nums; }
+.meter { height: 6px; border-radius: 9px; background: var(--on); overflow: hidden; }
+.meter u { display: block; height: 100%; background: var(--accent); transition: width 0.3s; text-decoration: none; }
+.flip { position: relative; display: block; width: 100%; min-height: min(52vh, 380px); border: 0; background: none; padding: 0; perspective: 1100px; text-align: center; }
+.flip .face { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 24px; border-radius: 26px; backface-visibility: hidden; -webkit-backface-visibility: hidden; transition: transform 0.5s cubic-bezier(0.3, 0.8, 0.3, 1); overflow: auto; }
+.flip .face em { font-style: normal; font-family: var(--font-display); font-weight: 800; font-size: clamp(30px, 7vw, 52px); line-height: 1.15; letter-spacing: -0.03em; overflow-wrap: anywhere; }
+.flip .back em { font-size: clamp(22px, 5vw, 32px); font-family: var(--font-body); font-weight: 700; letter-spacing: 0; }
+.flip .face small { color: var(--muted); font-size: 13px; }
+.flip .back { transform: rotateY(180deg); }
+.flip.on .front { transform: rotateY(-180deg); }
+.flip.on .back { transform: rotateY(0); }
+.grades { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; opacity: 0.35; transition: opacity 0.2s; }
+.grades.show { opacity: 1; }
+.grade { position: relative; display: flex; flex-direction: column; align-items: center; gap: 0; padding: 12px 4px 10px; border-radius: 16px; border: 1px solid var(--line); background: var(--glass); }
+.grade:enabled:hover { background: var(--on); }
+.grade:disabled { cursor: default; }
+.grade b { font-size: 15px; }
+.grade span { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.grade kbd { position: absolute; top: 4px; right: 7px; font: inherit; font-size: 10px; color: var(--muted); opacity: 0.7; }
+.grade.g1 b { color: var(--accent); }
+@media (hover: none) { .grade kbd { display: none; } }
+@media (max-width: 480px) { .grades { gap: 6px; } .grade b { font-size: 14px; } }

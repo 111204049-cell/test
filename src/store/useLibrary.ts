@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { localStore, hasSavedData } from './localStore'
+import { localStore } from './localStore'
 import { seedNodes } from './seed'
 import type { LibNode, NodeType, Store } from './types'
 
@@ -14,7 +14,7 @@ export function useLibrary() {
   useEffect(() => {
     let alive = true
     ;(async () => {
-      if (!hasSavedData()) for (const n of seedNodes()) await store.upsert(n)
+      if (!store.hasData()) for (const n of seedNodes()) await store.upsert(n)
       const all = await store.list()
       if (alive) {
         setNodes(all)

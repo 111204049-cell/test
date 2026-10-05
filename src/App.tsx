@@ -1,5 +1,8 @@
 import { useState } from 'react'
 import { useLibrary } from './store/useLibrary'
+import { useCards } from './store/useCards'
+import CardsPage from './components/CardsPage'
+import ReviewSession from './components/ReviewSession'
 import Sidebar from './components/Sidebar'
 import NoteEditor from './components/NoteEditor'
 import FolderView from './components/FolderView'
@@ -8,12 +11,14 @@ import Icon from './components/Icon'
 
 export default function App() {
   const lib = useLibrary()
+  const deck = useCards()
+  const [view, setView] = useState<'tree' | 'cards' | 'review'>('tree')
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [renamingId, setRenamingId] = useState<string | null>(null)
   const [expanded, setExpanded] = useState<Set<string>>(new Set(['uni', 'uni-1']))
   const [drawer, setDrawer] = useState(false)
 
-  if (!lib.ready) return <div className="boot">載入中…</div>
+  if (!lib.ready || !deck.ready) return <div className="boot">載入中…</div>
 
   const selected = selectedId ? lib.byId.get(selectedId) ?? null : null
   const path = lib.pathOf(selected?.id ?? null)
@@ -26,7 +31,11 @@ export default function App() {
       return next
     })
 
+  const dueCount = deck.cards.filter((c) => c.due <= Date.now()).length
+  const folders = lib.nodes.filter((n) => n.type === 'folder')
+
   const select = (id: string | null) => {
+    setView('tree')
     setSelectedId(id)
     setDrawer(false)
   }
@@ -76,11 +85,17 @@ export default function App() {
           setRenamingId={setRenamingId}
           expanded={expanded}
           toggle={toggle}
+          view={view}
+          dueCount={dueCount}
+          onView={(v) => {
+            setView(v)
+            setDrawer(false)
+          }}
         />
       </aside>
 
       <main className="main">
-        {path.length > 0 && (
+        {view === 'tree' && path.length > 0 && (
           <div className="crumbs" aria-label="目前位置">
             <button onClick={() => select(null)}>首頁</button>
             {path.map((n) => (
@@ -91,10 +106,21 @@ export default function App() {
             ))}
           </div>
         )}
-        {!selected && (
+        {view === 'cards' && (
+          <CardsPage
+            cards={deck.cards}
+            folders={folders}
+            dueCount={dueCount}
+            onAdd={deck.add}
+            onRemove={deck.remove}
+            onReview={() => setView('review')}
+          />
+        )}
+        {view === 'review' && <ReviewSession cards={deck.cards} onRate={deck.review} onExit={() => setView('cards')} />}
+        {view === 'tree' && !selected && (
           <Home nodes={lib.nodes} topLevel={lib.childrenOf(null)} onOpen={select} onCreateTop={() => create(null, 'folder')} />
         )}
-        {selected?.type === 'folder' && (
+        {view === 'tree' && selected?.type === 'folder' && (
           <FolderView
             folder={selected}
             items={lib.childrenOf(selected.id)}
@@ -105,7 +131,7 @@ export default function App() {
             onCreate={(type) => create(selected.id, type)}
           />
         )}
-        {selected?.type === 'note' && <NoteEditor key={selected.id} note={selected} onChange={(c) => lib.patch(selected.id, c)} />}
+        {view === 'tree' && selected?.type === 'note' && <NoteEditor key={selected.id} note={selected} onChange={(c) => lib.patch(selected.id, c)} />}
       </main>
     </div>
   )
