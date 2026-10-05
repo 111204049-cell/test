@@ -30,3 +30,15 @@ npm run build    # 型別檢查 + 打包
 - 筆記的「閱讀」模式：點任何英文單字，會出現中文翻譯與英文釋義，可直接加入單字卡
 - 「編輯」模式：選取文字後按「查詢」
 - 英文釋義：Free Dictionary API；中文翻譯：MyMemory（皆免費、免金鑰，查過的字會存在本機）
+
+## 部署到 Firebase Hosting
+
+1. 在 [Firebase 主控台](https://console.firebase.google.com) 建立專案（可選用既有的 Google Cloud 專案）
+2. 本機執行一次：
+   ```bash
+   npx firebase-tools login
+   npx firebase-tools use --add     # 選你的專案，別名輸入 default
+   ```
+3. 之後每次更新：`npm run deploy`
+
+部署完成會顯示 `https://<專案名>.web.app` 網址，手機開啟後即可安裝。
